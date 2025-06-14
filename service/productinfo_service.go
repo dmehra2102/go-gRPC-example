@@ -7,11 +7,13 @@ import (
 	"github.com/gofrs/uuid/v5"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type server struct {
 	pb.UnimplementedProductInfoServer
 	productMap map[string]*pb.Product
+	orderMap map[string]*pb.Order
 }
 
 // AddProduct implements ecommerce.AddProduct
@@ -36,4 +38,10 @@ func (s *server) GetProduct(ctx context.Context, in *pb.ProductID) (*pb.Product,
 		return value, status.New(codes.OK, "").Err()
 	}
 	return nil, status.Errorf(codes.NotFound, "Product does not exist with ID : %s.", in.Value)
+}
+
+// GetOrder implements ecommerce.GetOrder
+func (s *server) GetOrder(ctx context.Context, orderId *wrapperspb.StringValue) (*pb.Order, error){
+	ord := s.orderMap[orderId.Value]
+	return ord, nil
 }
