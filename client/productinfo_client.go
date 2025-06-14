@@ -26,7 +26,7 @@ func main() {
 	name := "Apple iPhone 11"
   description := `Meet Apple iPhone 11. All-new dual-camera system with
               Ultra Wide and Night mode.`
-  price := float64(1000.0)
+  price := float32(1000.0)
   ctx, cancel := context.WithTimeout(context.Background(), time.Second)
   defer cancel()
 
