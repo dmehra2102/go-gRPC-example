@@ -19,6 +19,7 @@ func main() {
 	}
 	s := grpc.NewServer()
 	pb.RegisterProductInfoServer(s, &server{})
+	pb.RegisterOrderManagementServer(s, &server{})
 
 	log.Printf("Starting gRPC listener on port " + port)
 	if err := s.Serve(lis); err != nil {

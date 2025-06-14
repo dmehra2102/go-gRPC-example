@@ -12,6 +12,7 @@ import (
 
 type server struct {
 	pb.UnimplementedProductInfoServer
+	pb.UnimplementedOrderManagementServer
 	productMap map[string]*pb.Product
 	orderMap map[string]*pb.Order
 }
