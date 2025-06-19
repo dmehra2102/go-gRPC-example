@@ -6,9 +6,11 @@ import (
 	"io"
 	"log"
 	pb "productInfo/service/ecommerce"
+	"strconv"
 	"strings"
 
 	"github.com/gofrs/uuid/v5"
+	erp "google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -47,6 +49,25 @@ func (s *server) GetProduct(ctx context.Context, in *pb.ProductID) (*pb.Product,
 
 // GetOrder implements ecommerce.GetOrder
 func (s *server) GetOrder(ctx context.Context, orderId *wrapperspb.StringValue) (*pb.Order, error) {
+	i, err := strconv.ParseInt(orderId.Value, 10, 64)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid order ID: %v", err)
+	}
+	if i < 0 {
+		log.Printf("Order ID is invalid! -> Received Order ID %s", orderId.Value)
+
+		errorStatus := status.New(codes.InvalidArgument, "Invalid information received")
+		ds, err := errorStatus.WithDetails(&erp.BadRequest_FieldViolation{
+			Field: "ID",
+			Description: fmt.Sprintf(
+				"Order ID received is not valid %s ", orderId.Value),
+		})
+		if err != nil {
+			return nil, errorStatus.Err()
+		}
+
+		return nil, ds.Err()
+	}
 	ord := s.orderMap[orderId.Value]
 	return ord, nil
 }
@@ -70,6 +91,7 @@ func (s *server) SearchOrders(searchQuery *wrapperspb.StringValue, stream pb.Ord
 	return nil
 }
 
+// UpdateOrders implements ecommerce.UpdateOrders
 func (s *server) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer) error {
 	ordersStr := "updated Order IDs : "
 	for {

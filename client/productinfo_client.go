@@ -37,7 +37,7 @@ func main() {
 	price := float32(1000.0)
 
 	clientDeadline := time.Now().Add(time.Duration(2 * time.Second))
-	ctx, cancel := context.WithDeadline(context.Background(), clientDeadline)
+	ctx, cancel := context.WithDeadline(context.Background(), clientDeadline) // Deadline set for 2 seconds
 	defer cancel()
 
 	// ADD Product
