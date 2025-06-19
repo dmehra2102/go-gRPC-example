@@ -17,7 +17,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	s := grpc.NewServer(grpc.UnaryInterceptor(OrderUnarySeverInterceptor))
+	s := grpc.NewServer(grpc.UnaryInterceptor(OrderUnarySeverInterceptor), grpc.StreamInterceptor(OrderStreamServerInterceptor))
 	pb.RegisterProductInfoServer(s, &server{})
 	pb.RegisterOrderManagementServer(s, &server{})
 
