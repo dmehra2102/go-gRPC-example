@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	pb "productinfo/client/ecommerce"
 	"time"
@@ -16,7 +17,7 @@ const (
 )
 
 func main() {
-	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}
@@ -32,7 +33,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-  // ADD Product
+	// ADD Product
 	r, err := c.AddProduct(ctx, &pb.Product{Name: name, Description: description, Price: price})
 
 	if err != nil {
@@ -40,7 +41,7 @@ func main() {
 	}
 	log.Printf("Product ID: %s added successfully", r.Value)
 
-  // GET Product
+	// GET Product
 	product, err := c.GetProduct(ctx, &pb.ProductID{Value: r.Value})
 	if err != nil {
 		log.Fatalf("Could not get product: %v", err)
@@ -55,4 +56,14 @@ func main() {
 	}
 	log.Print("GetOrder Response -> ", retrievedOrder)
 
+	// Search Orders
+	searchStream, _ := orderMgtClient.SearchOrders(ctx, &wrapperspb.StringValue{Value: "Google"})
+	for {
+		searchOrder, err := searchStream.Recv()
+		if err == io.EOF {
+			break
+		}
+
+		log.Print("Search Result : ", searchOrder)
+	}
 }
