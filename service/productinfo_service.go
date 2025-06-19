@@ -18,7 +18,7 @@ type server struct {
 	pb.UnimplementedProductInfoServer
 	pb.UnimplementedOrderManagementServer
 	productMap map[string]*pb.Product
-	orderMap map[string]*pb.Order
+	orderMap   map[string]*pb.Order
 }
 
 // AddProduct implements ecommerce.AddProduct
@@ -46,21 +46,21 @@ func (s *server) GetProduct(ctx context.Context, in *pb.ProductID) (*pb.Product,
 }
 
 // GetOrder implements ecommerce.GetOrder
-func (s *server) GetOrder(ctx context.Context, orderId *wrapperspb.StringValue) (*pb.Order, error){
+func (s *server) GetOrder(ctx context.Context, orderId *wrapperspb.StringValue) (*pb.Order, error) {
 	ord := s.orderMap[orderId.Value]
 	return ord, nil
 }
 
 // SearchOrders implements ecommerce.SearchOrders
 func (s *server) SearchOrders(searchQuery *wrapperspb.StringValue, stream pb.OrderManagement_SearchOrdersServer) error {
-	for key,order := range s.orderMap {
+	for key, order := range s.orderMap {
 		log.Print(key, order)
 		for _, itemStr := range order.Items {
 			log.Print(itemStr)
 			if strings.Contains(itemStr, searchQuery.Value) {
 				err := stream.Send(order)
 				if err != nil {
-				   return fmt.Errorf("error sending message to stream : %v",err) 
+					return fmt.Errorf("error sending message to stream : %v", err)
 				}
 				log.Print("Matching Order Found : " + key)
 				break
@@ -70,13 +70,12 @@ func (s *server) SearchOrders(searchQuery *wrapperspb.StringValue, stream pb.Ord
 	return nil
 }
 
-// 
 func (s *server) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer) error {
 	ordersStr := "updated Order IDs : "
 	for {
-		order,err := stream.Recv()
+		order, err := stream.Recv()
 		if err == io.EOF {
-			return stream.SendAndClose(&wrapperspb.StringValue{ Value: "Orders processed" + ordersStr})
+			return stream.SendAndClose(&wrapperspb.StringValue{Value: "Orders processed" + ordersStr})
 		}
 
 		s.orderMap[order.Id] = order
