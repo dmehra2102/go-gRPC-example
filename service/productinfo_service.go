@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	pb "productInfo/service/ecommerce"
 	"strings"
@@ -50,6 +51,7 @@ func (s *server) GetOrder(ctx context.Context, orderId *wrapperspb.StringValue) 
 	return ord, nil
 }
 
+// SearchOrders implements ecommerce.SearchOrders
 func (s *server) SearchOrders(searchQuery *wrapperspb.StringValue, stream pb.OrderManagement_SearchOrdersServer) error {
 	for key,order := range s.orderMap {
 		log.Print(key, order)
@@ -66,4 +68,19 @@ func (s *server) SearchOrders(searchQuery *wrapperspb.StringValue, stream pb.Ord
 		}
 	}
 	return nil
+}
+
+// 
+func (s *server) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer) error {
+	ordersStr := "updated Order IDs : "
+	for {
+		order,err := stream.Recv()
+		if err == io.EOF {
+			return stream.SendAndClose(&wrapperspb.StringValue{ Value: "Orders processed" + ordersStr})
+		}
+
+		s.orderMap[order.Id] = order
+		log.Printf("Order ID : %s : Updated", order.Id)
+		ordersStr += order.Id + ", "
+	}
 }

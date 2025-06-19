@@ -66,4 +66,51 @@ func main() {
 
 		log.Print("Search Result : ", searchOrder)
 	}
+
+	// Define updated orders
+	updOrder1 := pb.Order{
+		Id:          "106",
+		Items:       []string{"Apple iPhone 11", "Apple Watch"},
+		Destination: "San Jose, CA",
+		Price:       1200.0,
+	}
+	updOrder2 := pb.Order{
+		Id:          "107",
+		Items:       []string{"Google Pixel 4A"},
+		Destination: "Mountain View, CA",
+		Price:       800.0,
+	}
+	updOrder3 := pb.Order{
+		Id:          "108",
+		Items:       []string{"OnePlus 8"},
+		Destination: "Sunnyvale, CA",
+		Price:       700.0,
+	}
+
+	// Update Orders
+	updateStream, err := orderMgtClient.UpdateOrders(ctx)
+	if err != nil {
+		log.Fatalf("%v.UpdateOrders(_) = _, %v", orderMgtClient, err)
+	}
+
+	// Updating order 1
+	if err := updateStream.Send(&updOrder1); err != nil {
+		log.Fatalf("%v.Send(OrderID=%v) = %v", updateStream, updOrder1.Id, err)
+	}
+
+	// Updating order 2
+	if err := updateStream.Send(&updOrder2); err != nil {
+		log.Fatalf("%v.Send(OrderID=%v) = %v", updateStream, updOrder2.Id, err)
+	}
+
+	// Updating order 3
+	if err := updateStream.Send(&updOrder3); err != nil {
+		log.Fatalf("%v.Send(OrderID=%v) = %v", updateStream, updOrder3.Id, err)
+	}
+
+	updateRes, err := updateStream.CloseAndRecv()
+	if err != nil {
+		log.Fatalf("%v.CloseAndRecv() got error %v, want %v", updateStream, err, nil)
+	}
+	log.Printf("Update Orders Res : %s", updateRes)
 }
