@@ -17,7 +17,12 @@ const (
 )
 
 func main() {
-	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(address,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(OrderUnaryClientInterceptor),
+		grpc.WithStreamInterceptor(OrderStreamClientInterceptor),
+	)
+
 	if err != nil {
 		panic(err)
 	}

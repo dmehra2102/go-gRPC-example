@@ -25,8 +25,7 @@ func newWrappedStream(s grpc.ServerStream) grpc.ServerStream {
 	return &wrappedStream{s}
 }
 
-// StreamServerInterceptor func(srv any, ss ServerStream, info *StreamServerInfo, handler StreamHandler) error
-
+// Server - Stream Interceptor
 func OrderStreamServerInterceptor(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	log.Println("====== [Server Stream Interceptor] ", info.FullMethod)
 	err := handler(srv, newWrappedStream(ss))
