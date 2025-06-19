@@ -35,7 +35,9 @@ func main() {
 	description := `Meet Apple iPhone 11. All-new dual-camera system with
               Ultra Wide and Night mode.`
 	price := float32(1000.0)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+
+	clientDeadline := time.Now().Add(time.Duration(2 * time.Second))
+	ctx, cancel := context.WithDeadline(context.Background(), clientDeadline)
 	defer cancel()
 
 	// ADD Product
